@@ -1,12 +1,15 @@
 const expect = require('expect')
 const request = require('supertest')
+const {ObjectID} = require('mongodb')
 
 const {app} = require('../server')
 const {Todo} = require('../models/todo')
 
 const todos = [{
+  _id: new ObjectID(),
   text: 'First test todo'
 }, {
+  _id: new ObjectID(),
   text: 'Second test todo'
 }]
 
@@ -91,6 +94,49 @@ describe('An API server', () => {
           expect(response.body.todos.length).toBe(2)
         })
         .end(done)
+
+    })
+
+  })
+
+  context('when getting a todo', () => {
+
+    it('should return a todo', (done) => {
+
+      request(app)
+        .get(`/todos/${todos[0]._id.toHexString()}`)
+        .expect(200)
+        .expect((response) => {
+          expect(response.body.todo.text).toBe(todos[0].text)
+        })
+        .end(done)
+    })
+
+    context('when there is an invalid todo id', () => {
+
+      it('should return a 404', (done) => {
+
+        request(app)
+          .get('/todos/123abc')
+          .expect(404)
+          .end(done)
+
+      })
+
+    })
+
+    context('when todo not found', () => {
+
+      it('should return a 404', (done) => {
+
+        var hexId = new ObjectID().toHexString()
+
+        request(app)
+          .get(`/todos/${hexId}`)
+          .expect(404)
+          .end(done)
+
+      })
 
     })
 

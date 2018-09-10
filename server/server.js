@@ -53,7 +53,7 @@ app.get('/todos/:id', (request, response) => {
 
     }
 
-    response.send(todo)
+    response.send({todo})
 
   }).catch((error => response.status(400).send()))
 
