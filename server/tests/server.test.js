@@ -142,4 +142,64 @@ describe('An API server', () => {
 
   })
 
+  context('when deleting a todo', () => {
+
+    it('should delete a todo', (done) => {
+
+      var hexId = todos[1]._id.toHexString()
+
+      request(app)
+        .delete(`/todos/${hexId}`)
+        .expect(200)
+        .expect((response) => {
+          expect(response.body.todo.text).toBe(todos[1].text)
+        })
+        .end((error, response) => {
+
+          if (error) {
+            return done(error)
+          }
+
+          Todo.findById(hexId).then((todo) => {
+
+            expect(todo).toNotExist()
+
+            done()
+
+          }).catch((error) => done(error))
+
+        })
+
+    })
+
+    context('when todo id is invalid', () => {
+
+      it('should return a 404', (done) => {
+
+        request(app)
+          .get('/todos/123abc')
+          .expect(404)
+          .end(done)
+
+      })
+
+    })
+
+    context('when todo is not found', () => {
+
+      it('should return a 404', (done) => {
+
+        var hexId = new ObjectID().toHexString()
+
+        request(app)
+          .get(`/todos/${hexId}`)
+          .expect(404)
+          .end(done)
+
+      })
+
+    })
+
+  })
+
 })
