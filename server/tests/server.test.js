@@ -168,7 +168,7 @@ describe('An API server', () => {
 
         Todo.findById(hexId).then((todo) => {
 
-          expect(todo).toNotExist()
+          expect(todo).toBeFalsy()
 
           done()
 
@@ -194,7 +194,7 @@ describe('An API server', () => {
 
         Todo.findById(hexId).then((todo) => {
 
-          expect(todo).toExist()
+          expect(todo).toBeTruthy()
 
           done()
 
@@ -248,9 +248,9 @@ describe('An API server', () => {
       .send({text: 'text', completed: true})
       .expect(200)
       .expect((response) => {
-        expect(response.body.todo.text).toBe('text').toBeA('string')
+        expect(response.body.todo.text).toBe('text')
         expect(response.body.todo.completed).toBe(true)
-        expect(response.body.todo.completedAt).toBeA('number')
+        expect(typeof response.body.todo.completedAt).toBe('number')
       })
       .end(done)
 
@@ -281,9 +281,9 @@ describe('An API server', () => {
         .send({text: 'text', completed: false})
         .expect(200)
         .expect((response) => {
-          expect(response.body.todo.text).toBe('text').toBeA('string')
+          expect(response.body.todo.text).toBe('text')
           expect(response.body.todo.completed).toBe(false)
-          expect(response.body.todo.completedAt).toNotExist()
+          expect(response.body.todo.completedAt).toBeFalsy()
         })
         .end(done)
 
@@ -344,8 +344,8 @@ describe('An API server', () => {
       .send({email, password})
       .expect(200)
       .expect((response) => {
-        expect(response.headers['x-auth']).toExist()
-        expect(response.body._id).toExist()
+        expect(response.headers['x-auth']).toBeTruthy()
+        expect(response.body._id).toBeTruthy()
         expect(response.body.email).toBe(email)
       })
       .end((error) => {
@@ -358,8 +358,8 @@ describe('An API server', () => {
 
         User.findOne({email}).then((user) => {
 
-          expect(user).toExist()
-          expect(user.password).toNotBe(password)
+          expect(user).toBeTruthy()
+          expect(user.password).not.toBe(password)
           done()
 
         }).catch((error) => done(error))
@@ -416,7 +416,7 @@ describe('An API server', () => {
       })
       .expect(200)
       .expect((response) => {
-        expect(response.headers['x-auth']).toExist()
+        expect(response.headers['x-auth']).toBeTruthy()
       })
       .end((error, response) => {
 
@@ -426,7 +426,7 @@ describe('An API server', () => {
 
         User.findById(users[1]._id).then((user) => {
 
-          expect(user.tokens[1]).toInclude({
+          expect(user.toObject().tokens[1]).toMatchObject({
             access: 'auth',
             token: response.headers['x-auth']
           })
@@ -449,7 +449,7 @@ describe('An API server', () => {
       })
       .expect(400)
       .expect((response) => {
-        expect(response.headers['x-auth']).toNotExist()
+        expect(response.headers['x-auth']).toBeFalsy()
       })
       .end((error, response) => {
 
